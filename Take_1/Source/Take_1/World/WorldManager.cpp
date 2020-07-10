@@ -1,0 +1,46 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "WorldManager.h"
+
+// Sets default values
+AWorldManager::AWorldManager()
+{
+ 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	PrimaryActorTick.bCanEverTick = true; //should be reworked later
+
+	//calculate noise
+	ConstructNoiseWrapper(EFastNoise_NoiseType::SimplexFractal, 69, 0.02, EFastNoise_Interp::Quintic,
+		EFastNoise_FractalType::FBM, 5, 2.f, 0.5f, 0.45f,
+		EFastNoise_CellularDistanceFunction::Euclidean, EFastNoise_CellularReturnType::CellValue);
+
+
+
+}
+
+// Called when the game starts or when spawned
+void AWorldManager::BeginPlay()
+{
+	Super::BeginPlay();
+	
+}
+
+// Called every frame
+void AWorldManager::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+}
+
+void AWorldManager::ConstructNoiseWrapper(const EFastNoise_NoiseType noiseType, const int32 seed, const float frequency,
+			const EFastNoise_Interp interpolationMethod, const EFastNoise_FractalType fractalType, const int32 octaves, const float lacunarity,
+			const float gain , const float cellularJitter, const EFastNoise_CellularDistanceFunction cellularDistanceFunction, const EFastNoise_CellularReturnType cellularReturnType)
+{
+	fastNoiseWrapperObject = CreateDefaultSubobject<UFastNoiseWrapper>(TEXT("FastNoiseWrapper"));
+
+	fastNoiseWrapperObject->SetupFastNoise(noiseType, seed, frequency, interpolationMethod,
+								fractalType, octaves, lacunarity, gain,
+								cellularJitter, cellularDistanceFunction, cellularReturnType);
+
+
+}
