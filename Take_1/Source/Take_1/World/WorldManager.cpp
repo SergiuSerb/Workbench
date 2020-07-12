@@ -14,6 +14,9 @@ AWorldManager::AWorldManager()
 		EFastNoise_FractalType::FBM, 5, 2.f, 0.5f, 0.45f,
 		EFastNoise_CellularDistanceFunction::Euclidean, EFastNoise_CellularReturnType::CellValue);
 
+	//construct triangle array
+	FillTriangleArray();
+
 
 
 }
@@ -43,4 +46,67 @@ void AWorldManager::ConstructNoiseWrapper(const EFastNoise_NoiseType noiseType, 
 								cellularJitter, cellularDistanceFunction, cellularReturnType);
 
 
+}
+
+FVector AWorldManager::Make3DVector(const float X, const float Y, const float Z)
+{
+	FVector ToReturn;
+
+	ToReturn.X = X;
+	ToReturn.Y = Y;
+	ToReturn.Z = Z;
+
+	return ToReturn;
+}
+
+int AWorldManager::GetFlattenedArrayIndex(int matrixSize, int i, int j)
+{
+	return (matrixSize * i) + j;
+}
+
+void AWorldManager::FillTriangleArray()
+{
+	int bottomLeftIndex, topLeftIndex, bottomRightIndex, topRightIndex;
+
+	for (int i = 0; i < 20 - 1; i++)
+	{
+		for (int j = 0; j < 20 - 1; j++)
+		{
+			topLeftIndex = GetFlattenedArrayIndex(20, i, j);
+			topRightIndex = GetFlattenedArrayIndex(20, i, j + 1);
+			bottomLeftIndex = GetFlattenedArrayIndex(20, i + 1, j);
+			bottomRightIndex = GetFlattenedArrayIndex(20, i + 1, j + 1);
+
+			Triangles.Add(bottomLeftIndex);
+			Triangles.Add(topLeftIndex);
+			Triangles.Add(topRightIndex);
+			Triangles.Add(bottomLeftIndex);
+			Triangles.Add(topRightIndex);
+			Triangles.Add(bottomRightIndex);
+		}
+	}
+}
+
+TArray<FVector> AWorldManager::GetNoiseForChunk(FVector startingLocation)
+{
+	TArray<FVector> resultArray;
+
+	int xCoord = startingLocation.X;
+	int yCoord = startingLocation.Y;
+
+	while (xCoord <= (startingLocation.X + 20))
+	{
+		while (yCoord <= (startingLocation.Y + 19))
+		{
+			resultArray.Add(Make3DVector(xCoord*50, yCoord*50, fastNoiseWrapperObject->GetNoise2D(xCoord, yCoord) * Amplitude));
+
+			yCoord++;
+		}
+
+		xCoord ++;
+		yCoord = startingLocation.Y;
+	}
+
+
+	return resultArray;
 }
