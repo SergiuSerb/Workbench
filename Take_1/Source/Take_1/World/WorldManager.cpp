@@ -10,7 +10,7 @@ AWorldManager::AWorldManager()
 	PrimaryActorTick.bCanEverTick = true; //should be reworked later
 
 	//calculate noise
-	ConstructNoiseWrapper(EFastNoise_NoiseType::SimplexFractal, 69, 0.02, EFastNoise_Interp::Quintic,
+	ConstructNoiseWrapper(EFastNoise_NoiseType::SimplexFractal, 69, 1.0f, EFastNoise_Interp::Quintic,
 		EFastNoise_FractalType::FBM, 5, 2.f, 0.5f, 0.45f,
 		EFastNoise_CellularDistanceFunction::Euclidean, EFastNoise_CellularReturnType::CellValue);
 
@@ -68,14 +68,14 @@ void AWorldManager::FillTriangleArray()
 {
 	int bottomLeftIndex, topLeftIndex, bottomRightIndex, topRightIndex;
 
-	for (int i = 0; i < 20 - 1; i++)
+	for (int i = 0; i < 20 ; i++)
 	{
-		for (int j = 0; j < 20 - 1; j++)
+		for (int j = 0; j < 20; j++)
 		{
-			topLeftIndex = GetFlattenedArrayIndex(20, i, j);
-			topRightIndex = GetFlattenedArrayIndex(20, i, j + 1);
-			bottomLeftIndex = GetFlattenedArrayIndex(20, i + 1, j);
-			bottomRightIndex = GetFlattenedArrayIndex(20, i + 1, j + 1);
+			topLeftIndex = GetFlattenedArrayIndex(21, i, j);
+			topRightIndex = GetFlattenedArrayIndex(21, i, j + 1);
+			bottomLeftIndex = GetFlattenedArrayIndex(21, i + 1, j);
+			bottomRightIndex = GetFlattenedArrayIndex(21, i + 1, j + 1);
 
 			Triangles.Add(bottomLeftIndex);
 			Triangles.Add(topLeftIndex);
@@ -96,9 +96,9 @@ TArray<FVector> AWorldManager::GetNoiseForChunk(FVector startingLocation)
 
 	while (xCoord <= (startingLocation.X + 20))
 	{
-		while (yCoord <= (startingLocation.Y + 19))
+		while (yCoord <= (startingLocation.Y + 20))
 		{
-			resultArray.Add(Make3DVector(xCoord*50, yCoord*50, fastNoiseWrapperObject->GetNoise2D(xCoord, yCoord) * Amplitude));
+			resultArray.Add(Make3DVector(xCoord*50, yCoord*50, fastNoiseWrapperObject->GetNoise2D(xCoord*50, yCoord*50) * Amplitude));
 
 			yCoord++;
 		}
