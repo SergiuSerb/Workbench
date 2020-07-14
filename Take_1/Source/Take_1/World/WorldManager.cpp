@@ -10,7 +10,7 @@ AWorldManager::AWorldManager()
 	PrimaryActorTick.bCanEverTick = true; //should be reworked later
 
 	//calculate noise
-	ConstructNoiseWrapper(EFastNoise_NoiseType::SimplexFractal, 69, 1.0f, EFastNoise_Interp::Quintic,
+	ConstructNoiseWrapper(EFastNoise_NoiseType::Simplex, 69, 0.01, EFastNoise_Interp::Quintic,
 		EFastNoise_FractalType::FBM, 5, 2.f, 0.5f, 0.45f,
 		EFastNoise_CellularDistanceFunction::Euclidean, EFastNoise_CellularReturnType::CellValue);
 
@@ -59,6 +59,16 @@ FVector AWorldManager::Make3DVector(const float X, const float Y, const float Z)
 	return ToReturn;
 }
 
+FVector2D AWorldManager::Make2DVector(const float X, const float Y)
+{
+	FVector2D ToReturn;
+
+	ToReturn.X = X;
+	ToReturn.Y = Y;
+
+	return ToReturn;
+}
+
 int AWorldManager::GetFlattenedArrayIndex(int matrixSize, int i, int j)
 {
 	return (matrixSize * i) + j;
@@ -68,14 +78,14 @@ void AWorldManager::FillTriangleArray()
 {
 	int bottomLeftIndex, topLeftIndex, bottomRightIndex, topRightIndex;
 
-	for (int i = 0; i < 20 ; i++)
+	for (int i = 0; i < 40 ; i++)
 	{
-		for (int j = 0; j < 20; j++)
+		for (int j = 0; j < 40; j++)
 		{
-			topLeftIndex = GetFlattenedArrayIndex(21, i, j);
-			topRightIndex = GetFlattenedArrayIndex(21, i, j + 1);
-			bottomLeftIndex = GetFlattenedArrayIndex(21, i + 1, j);
-			bottomRightIndex = GetFlattenedArrayIndex(21, i + 1, j + 1);
+			topLeftIndex = GetFlattenedArrayIndex(41, i, j);
+			topRightIndex = GetFlattenedArrayIndex(41, i, j + 1);
+			bottomLeftIndex = GetFlattenedArrayIndex(41, i + 1, j);
+			bottomRightIndex = GetFlattenedArrayIndex(41, i + 1, j + 1);
 
 			Triangles.Add(bottomLeftIndex);
 			Triangles.Add(topLeftIndex);
@@ -87,26 +97,29 @@ void AWorldManager::FillTriangleArray()
 	}
 }
 
-TArray<FVector> AWorldManager::GetNoiseForChunk(FVector startingLocation)
+TArray<FVector> AWorldManager::GetNoiseForChunk(const int inCoordsX, const int inCoordsY)
 {
 	TArray<FVector> resultArray;
 
-	int xCoord = startingLocation.X;
-	int yCoord = startingLocation.Y;
-
-	while (xCoord <= (startingLocation.X + 20))
+	for (float xCoord = (float)(inCoordsX - 0.5f); xCoord <= (float)(inCoordsX + 0.501f); xCoord+= 0.025f)
 	{
-		while (yCoord <= (startingLocation.Y + 20))
+		for (float yCoord = (float)(inCoordsY - 0.5f); yCoord <= (float)(inCoordsY + 0.501f); yCoord += 0.025f)
 		{
-			resultArray.Add(Make3DVector(xCoord*50, yCoord*50, fastNoiseWrapperObject->GetNoise2D(xCoord*50, yCoord*50) * Amplitude));
-
-			yCoord++;
+			resultArray.Add(Make3DVector(xCoord - inCoordsX, yCoord - inCoordsY, fastNoiseWrapperObject->GetNoise2D(xCoord*20, yCoord*20) * Amplitude));
 		}
-
-		xCoord ++;
-		yCoord = startingLocation.Y;
 	}
 
+	return resultArray;
+}
+
+TArray<FVector2D> AWorldManager::CalculateUVForChunk(const TArray<FVector> inVertexArray)
+{
+	TArray<FVector2D> resultArray;
+
+	for (int i = 0; i < inVertexArray.Num(); i++)
+	{
+		resultArray.Add(Make2DVector(inVertexArray[i].X * 2, inVertexArray[i].Y * 2));
+	}
 
 	return resultArray;
 }

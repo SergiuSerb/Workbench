@@ -18,7 +18,10 @@ public:
 	AWorldManager();
 
 	UFUNCTION(BlueprintCallable, Category = "ChunkGeneration")
-		TArray<FVector> GetNoiseForChunk(FVector StartingLocation);
+		TArray<FVector> GetNoiseForChunk(const int inCoordsX, const int inCoordsY);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "ChunkGeneration")
+		TArray<FVector2D> CalculateUVForChunk(const TArray<FVector> inVertexArray);
 
 	//Propriety to multiply Z by - a.k.a how tall you want the terrain to be
 	UPROPERTY(BlueprintReadWrite, Category = "ChunkGeneration")
@@ -33,6 +36,8 @@ protected:
 	virtual void BeginPlay() override;
 
 	FVector  Make3DVector(const float, const float, const float);
+
+	FVector2D Make2DVector(const float, const float);
 
 	void FillTriangleArray();
 

@@ -17,6 +17,9 @@ public:
 	// Sets default values for this actor's properties
 	AWorldChunk();
 
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "ChunkGeneration")
+		void BuildMesh(const TArray<FVector> &inVertexArray, const TArray<int> &inTriangleArray, const TArray<FVector2D> &inUVArray);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
